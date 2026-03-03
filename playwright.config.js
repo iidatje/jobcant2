@@ -45,7 +45,12 @@ module.exports = defineConfig({
   projects: [
     {
       name: "chromium",
-      use: { ...devices["Desktop Chrome"] },
+      use: {
+        ...devices["iPhone 15"],
+        // iPhone 16e (iOS 26.3) を想定したUser Agentと画面サイズに上書き
+        userAgent: "Mozilla/5.0 (iPhone; CPU iPhone OS 26_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.3 Mobile/15E148 Safari/604.1",
+        viewport: { width: 393, height: 852 },
+      },
     },
     // {
     //   name: "Microsoft Edge",
