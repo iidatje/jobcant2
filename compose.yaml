@@ -1,0 +1,15 @@
+services:
+  jobcant:
+    build: .
+    working_dir: /app
+    volumes:
+      - .:/app
+      - /app/node_modules
+    environment:
+      # Makefileから渡される動的な値を優先させる
+      - JC_MSG
+      - JC_DRYRUN
+      - JC_CALENDAR_SYNC
+    env_file:
+      - .env
+    ipc: host
