@@ -172,6 +172,17 @@ test("job-cant-dakoku-execution", async ({ page, context }) => {
   //await page.waitForTimeout(5000);
   await page.waitForLoadState();
 
+  // GPS記録
+  await page.getByText("外出先GPS記録").click();
+  await page.waitForLoadState();
+
+  // GPS記録実行
+  await page.getByRole("button", { name: "GPS記録" }).click();
+  await page.waitForLoadState();
+
+  // スクリーンショット保存 (ホストOSの screenshots/ ディレクトリに同期されます)
+  await page.screenshot({ path: "screenshots/gps_record.png" });
+
   // 「打刻」
   await page.goto("https://ssl.jobcan.jp/m/work/accessrecord?_m=adit");
   await page.waitForLoadState();
