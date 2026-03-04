@@ -1,11 +1,19 @@
 services:
-  jobcant:
+  jobcant2:
+    container_name: jobcant2
     build: .
     working_dir: /app
     volumes:
       - .:/app
       - /app/node_modules
+      - /tmp/.X11-unix:/tmp/.X11-unix
+    tty: true
     environment:
+      # WSLg
+      - DISPLAY=${DISPLAY}
+      - WAYLAND_DISPLAY=${WAYLAND_DISPLAY}
+      - XDG_RUNTIME_DIR=${XDG_RUNTIME_DIR}
+      - PULSE_SERVER=${PULSE_SERVER}
       # Makefileから渡される動的な値を優先させる
       - JC_MSG
       - JC_DRYRUN
