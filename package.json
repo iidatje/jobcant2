@@ -6,8 +6,11 @@
   "directories": {
     "test": "tests"
   },
+  "devDependencies": {
+    "@playwright/test": "^1.58.2",
+    "@types/node": "^25.3.0"
+  },
   "dependencies": {
-    "playwright-core": "^1.58.2",
     "dotenv": "^16.6.1"
   },
   "scripts": {
@@ -15,9 +18,5 @@
   },
   "keywords": [],
   "author": "",
-  "license": "ISC",
-  "devDependencies": {
-    "@playwright/test": "^1.36.2",
-    "dotenv": "^16.1.3"
-  }
+  "license": "MIT"
 }

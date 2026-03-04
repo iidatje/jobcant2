@@ -2,8 +2,12 @@ FROM mcr.microsoft.com/playwright:v1.58.2-jammy
 
 WORKDIR /app
 
-# 依存関係のインストール
-COPY package.json yarn.lock* ./
-RUN yarn install
+#COPY package.json yarn.lock* ./
+COPY package.json ./
+#RUN yarn install
+
+RUN yarn config set strict-ssl false \
+ && yarn install \
+ && yarn config delete strict-ssl
 
 COPY . .
