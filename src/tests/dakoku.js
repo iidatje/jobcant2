@@ -180,12 +180,27 @@ test("job-cant-dakoku-execution", async ({ page, context }) => {
   await page.getByRole("button", { name: "GPS記録" }).click();
   await page.waitForLoadState();
 
+  // 位置情報取得
+  // 当該オリジンに geolocation を明示付与しないと「あなたのリクエストしたURLは有効でないか、ページが削除された可能性があります。」のエラーになる。
+  const origin = new URL(page.url()).origin;
+  await context.grantPermissions(['geolocation'], { origin });
+
+  // 権限状態を即確認（debug用）
+  const state = await page.evaluate(async () => {
+    const st = await navigator.permissions.query({ name: 'geolocation' });
+    return st.state; // 'granted' になっていればOK
+  });
+  console.log('Geolocation permission state:', state);
+
+  await page.getByRole("button", { name: "位置情報取得" }).click();
+  await page.waitForLoadState();
+
   // スクリーンショット保存 (ホストOSの screenshots/ ディレクトリに同期されます)
   await page.screenshot({ path: "screenshots/gps_record.png" });
 
   // 「打刻」
-  await page.goto("https://ssl.jobcan.jp/m/work/accessrecord?_m=adit");
-  await page.waitForLoadState();
+  //await page.goto("https://ssl.jobcan.jp/m/work/accessrecord?_m=adit");
+  //await page.waitForLoadState();
 
   // 押下
   //await page.waitForSelector("#idRichContext_DisplaySign");
@@ -209,6 +224,7 @@ test("job-cant-dakoku-execution", async ({ page, context }) => {
   //await page.waitForLoadState();
 
   // dry-run trueのときは「いいえ」で終了
+  isDryrun = true;
   const executeButtonName = isDryrun ? "いいえ" : "はい";
   await page.getByRole("button", { name: executeButtonName }).click();
 
