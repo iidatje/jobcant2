@@ -15,8 +15,19 @@ up:
 down:
 	docker compose down
 
-shell:
-	docker compose run --rm jobcant /bin/bash
+bash:
+	docker exec -it jobcant2 bash
+
+run:
+	docker exec -it jobcant2 bash
+
+run-headed:
+	docker exec \
+		-e JC_DRYRUN=$(DRY) \
+        -e DISPLAY=$$DISPLAY \
+		-w /app \
+		-t jobcant2 \
+		npx playwright test --headed dakoku.js
 
 # 退勤スクリプト実行
 # 使用例: make end MSG="お疲れ様でした" DRY=true
