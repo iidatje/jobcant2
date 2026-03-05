@@ -25,7 +25,10 @@ export default {
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: "on-first-retry",
     permissions: ["geolocation"],
+    // 放送センター
     geolocation: { latitude: 35.6659, longitude: 139.69634 },
+    // 横浜局
+    //geolocation: { latitude: 35.445253, longitude: 139.646238 },
     locale: "ja_JP",
     timezoneId: "Asia/Tokyo",
     bypassCSP: true,
