@@ -1,4 +1,7 @@
 import { test, expect, chromium } from '@playwright/test';
+import { handleMicrosoftLogin } from './services/auth';
+import { getOutlookEvents } from './services/outlook';
+import { postToTeams } from './services/teams';
 
 const USER_DATA_DIR = '/tmp/.user-data';
 
@@ -56,99 +59,26 @@ test('jobcant2-dakoku-execution', async () => {
   await page.getByPlaceholder('会社ID').fill(process.env.JOBCAN_COMPANY_ID);
   await page.getByRole('button', { name: 'ログイン' }).click();
 
-  // MS Login #1
-  await page.getByPlaceholder('メール、電話、Skype').click();
-  await page
-    .getByPlaceholder('メール、電話、Skype')
-    .fill(process.env.MS_LOGIN_ID);
-  await page.getByRole('button', { name: '次へ' }).click();
-
-  // MS Login #2
-  await page.getByPlaceholder('パスワード').fill(process.env.MS_LOGIN_PASSWORD);
-  await page.getByRole('button', { name: 'サインイン' }).click();
-  await page.waitForLoadState();
-
-  // MS Login #3
-  await page
-    .getByRole('checkbox', { name: '今後このメッセージを表示しない' })
-    .click();
-  await page.getByRole('button', { name: 'はい' }).click();
-  await page.waitForLoadState();
+  // MS Login (必要な場合のみ実行される)
+  await handleMicrosoftLogin(page);
 
   // outlook
   if (isCalendarSync) {
-    await page.goto('https://outlook.office365.com/calendar/view/day');
+    const calendarMessage = await getOutlookEvents(page);
+    if (calendarMessage) {
+      message = calendarMessage + '\n\n' + message;
+      console.log(message);
 
-    await page.waitForSelector('.calendar-SelectionStyles-resizeBoxParent');
-    const cellLocator = page.locator(
-      '.calendar-SelectionStyles-resizeBoxParent',
-    );
-
-    // skipしたいカレンダーのタイトルはenvのコピー忘れを考慮して、2つのよくあるやつを
-    var skipWords = new Array('Canceled:', '(件名なし)');
-
-    if (process.env.CALENDAR_SKIP_WORDS !== undefined) {
-      skipWords = process.env.CALENDAR_SKIP_WORDS.split(',');
+      // Teamsへ送信 (環境変数 TEAMS_CHANNEL_URL が設定されている場合)
+      if (process.env.TEAMS_CHANNEL_URL) {
+        await postToTeams(page, process.env.TEAMS_CHANNEL_URL, calendarMessage);
+      }
     }
-
-    var calendarMessageList = new Array();
-
-    parseCell: for (const cell of await cellLocator.all()) {
-      const accepted = await cell.locator('div').first().getAttribute('class');
-
-      // 返事をしていないものは(斜線表示)スキップする
-      if (accepted.indexOf('Zn9Tu') === -1) {
-        continue;
-      }
-
-      const attr = await cell.locator('[role="button"]').getAttribute('title');
-      const items = attr.split('\n', 3);
-
-      var title = '';
-      var time = '';
-      var count = 0;
-
-      for (const item of items) {
-        if (count === 0) {
-          // 先頭はタイトルなはず
-          title = item;
-        } else if (
-          item === 'Microsoft Teams Meeting' ||
-          item === 'Microsoft Teams 会議'
-        ) {
-          // nothing todo
-        } else if (item.match(/^\d{4}\D+\d{1,2}\D+\d{1,2}/)) {
-          // 終日 [2023 年 7 月 12 日 (水曜日)]
-          time = '終日';
-        } else {
-          // elseで時刻というのはちょっと弱いかもしれない
-          // 時刻レンジ [10:00 から 19:00]
-          const match = item.match(/(\d{1,2}:\d{1,2})\D*(\d{1,2}:\d{1,2})/);
-
-          if (match) {
-            time = match[1] + '-' + match[2];
-          }
-        }
-
-        count++;
-      }
-
-      // タイトルだけ拾ってすぐに判定してもいいかもしれない
-      for (const word of skipWords) {
-        if (title.indexOf(word) === 0) {
-          continue parseCell;
-        }
-      }
-
-      calendarMessageList.push(time + ' ' + title);
-    }
-
-    // 時刻順でいいよね？
-    calendarMessageList.sort();
-    message = calendarMessageList.join('\n') + '\n\n' + message;
-
-    console.log(message);
   }
+
+  // テスト確認用にここで終了
+  await context.close();
+  return;
 
   // ここを踏むと「アカウント情報」
   await page.goto('https://ssl.jobcan.jp/jbcoauth/login');
