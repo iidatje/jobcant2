@@ -1,5 +1,10 @@
+import { handleMicrosoftLogin } from './auth.js';
+
 export async function getOutlookEvents(page) {
   await page.goto('https://outlook.office365.com/calendar/view/day');
+
+  // Outlookページで再度ログインが必要な場合に対応
+  await handleMicrosoftLogin(page);
 
   try {
     await page.waitForSelector('.calendar-SelectionStyles-resizeBoxParent', {
@@ -7,6 +12,7 @@ export async function getOutlookEvents(page) {
     });
   } catch (e) {
     console.log('Outlook calendar cells not found.');
+    await page.screenshot({ path: 'screenshots/outlook_error.png' });
     return '';
   }
 
