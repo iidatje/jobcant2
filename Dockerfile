@@ -2,12 +2,10 @@ FROM mcr.microsoft.com/playwright:v1.58.2-jammy
 
 WORKDIR /app
 
-#COPY package.json yarn.lock* ./
-COPY package.json ./
-#RUN yarn install
-
+COPY package.json yarn.lock ./
+#COPY package.json ./
 RUN yarn config set strict-ssl false \
- && yarn install \
+ && yarn install --frozen-lockfile \
  && yarn config delete strict-ssl
 
 COPY . .
