@@ -3,8 +3,13 @@ import { handleMicrosoftLogin } from './auth.js';
 export async function getOutlookEvents(page) {
   await page.goto('https://outlook.office365.com/calendar/view/day');
 
-  // Outlookページで再度ログインが必要な場合に対応
-  await handleMicrosoftLogin(page);
+  // ページ遷移・リダイレクトが落ち着くまで待つ
+  await page.waitForLoadState('networkidle');
+
+  // URLがログイン画面のものであればログイン処理を試みる
+  if (page.url().includes('login.microsoftonline.com')) {
+    await handleMicrosoftLogin(page);
+  }
 
   try {
     await page.waitForSelector('.calendar-SelectionStyles-resizeBoxParent', {
