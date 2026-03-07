@@ -23,7 +23,7 @@ test('jobcant2-dakoku-execution', async () => {
     headless: false,
     viewport: { width: 393, height: 852 },
     userAgent:
-      'Mozilla/5.0 (iPhone; CPU iPhone OS 26_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.3 Mobile/15E148 Safari/604.1',
+      'Mozilla/5.0 (iPhone; CPU iPhone OS 18_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Mobile/15E148 Safari/604.1 EdgiOS/132.0.2957.141',
     locale: 'ja_JP',
     timezoneId: 'Asia/Tokyo',
     permissions: ['geolocation'],
