@@ -32,7 +32,7 @@ down:
 	docker compose down
 
 bash:
-	docker exec -it jobcant2 bash
+	docker exec -it $(SERVICE) bash
 
 run-headed:
 	docker compose --profile $(PROFILE) up -d $(SERVICE)
